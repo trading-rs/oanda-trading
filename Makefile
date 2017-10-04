@@ -1,5 +1,5 @@
 CC=c++
-FLAG=-Wall -std=c++14 -I/usr/local/opt/openssl/include -I./include/json/src -I./include/fmt
+FLAG=-Wall -std=c++14 -I./include/range-v3/include -I./include/json/src -I./include/fmt -I/usr/local/opt/openssl/include
 MAIN=main
 TEST=test-exec
 

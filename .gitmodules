@@ -4,3 +4,6 @@
 [submodule "include/fmt"]
 	path = include/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "include/range-v3"]
+	path = include/range-v3
+	url = https://github.com/ericniebler/range-v3.git
