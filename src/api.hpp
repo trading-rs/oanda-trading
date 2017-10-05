@@ -64,7 +64,7 @@ namespace api {
 
     try {
       // prepare session
-      URI uri(format("{0}{1}", url, flatten_params(params)));
+      URI uri(format("{0}/v3/{1}{2}", domain, url, flatten_params(params)));
       HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
       session.setKeepAlive(true);
 
@@ -97,12 +97,16 @@ namespace api {
     }
   }
 
-  auto post(const string &url, const json &body_json) -> json {
+  auto get(const string &url) -> json {
+    return get(url, Map({}));
+  }
+
+  auto effect_request(const string &method, const string &url, const json &body_json) -> json {
     pre_check();
 
     try {
       // prepare session
-      URI uri(url);
+      URI uri(format("{0}/v3/{1}", domain, url));
       HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
 
       // prepare path
@@ -110,17 +114,19 @@ namespace api {
       if (path.empty()) path = "/";
 
       // send request
-      HTTPRequest req(HTTPRequest::HTTP_POST, path, HTTPMessage::HTTP_1_1);
+      HTTPRequest req(method, path, HTTPMessage::HTTP_1_1);
       req.set("Authorization", std::string("Bearer ") + access_token);
       req.setContentType("application/json");
 
-      auto body = body_json.dump();
-      // Set the request body
-      req.setContentLength(body.length());
+      if (body_json != nullptr) {
+        auto body = body_json.dump();
+        // Set the request body
+        req.setContentLength(body.length());
 
-      // sends request, returns open stream
-      std::ostream& os = session.sendRequest(req);
-      os << body;  // sends the body
+        // sends request, returns open stream
+        std::ostream& os = session.sendRequest(req);
+        os << body;  // sends the body
+      }
 
       // get response
       HTTPResponse res;
@@ -141,5 +147,21 @@ namespace api {
       cerr << e.displayText() << endl;
       return nullptr;
     }
+  }
+
+  auto post(const string &url, const json &body_json) -> json {
+    return effect_request(HTTPRequest::HTTP_POST, url, body_json);
+  }
+
+  auto post(const string &url) -> json {
+    return post(url, nullptr);
+  }
+
+  auto put(const string &url, const json &body_json) -> json {
+    return effect_request(HTTPRequest::HTTP_PUT , url, body_json);
+  }
+
+  auto put(const string &url) -> json {
+    return put(url, nullptr);
   }
 }

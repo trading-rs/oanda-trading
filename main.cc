@@ -5,29 +5,24 @@ using nlohmann::json;
 #include <iostream>
 using namespace std;
 
-#ifndef FORMAT_HEADER
-#define FORMAT_HEADER
-#include <fmt/format.h>
-#include <fmt/format.cc>
-#endif
-using namespace fmt;
+#include "src/endpoints.hpp"
+using namespace endpoints;
 
-#include "src/endpoint.hpp"
-using namespace endpoint;
+auto print_result(const json &result) -> void {
+  if (result != nullptr)
+    cout << result.dump() << endl;
+}
 
 int main(int argc, char** argv) {
   const Map& params = {
     //B bid A ask
     { "price", "BA" },
-    { "from", "2016-10-17T15:17:00Z" },
-    //M minute S second D day
-    { "granularity", "M1" }
+    { "from", "2017-10-01T15:17:00Z" },
+    //M1 1 minute, S1 1 second, D 1 day
+    { "granularity", "D" }
   };
 
-  auto j = get(format("{0}/v3/instruments/{1}/candles", domain, "USD_JPY"), params);
-
-  if (j != nullptr)
-    cout << j.dump(2) << endl;
+  print_result(instrument::candles("USD_JPY", params));
 
   json body = {
     { "order", {
@@ -40,8 +35,7 @@ int main(int argc, char** argv) {
     }
   };
 
-  auto j2 = post(format("{0}/v3/accounts/{1}/orders", domain, account_id), body);
+  //print_result(order::create(body));
 
-  if (j2 != nullptr)
-    cout << j.dump(2) << endl;
+  print_result(trade::all("EUR_USD"));
 }
