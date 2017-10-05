@@ -35,6 +35,8 @@ using namespace Poco::Net;
 namespace endpoint {
   typedef map<string, string> Map;
 
+  const Context::Ptr context = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_NONE, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+
   const char* domain = getenv("FOREX_DOMAIN");
   const char* access_token = getenv("FOREX_ACCESS_TOKEN");
   const char* account_id = getenv("FOREX_ACCOUNT_ID");
@@ -61,8 +63,6 @@ namespace endpoint {
     pre_check();
 
     try {
-      const Context::Ptr context = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_NONE, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
-
       // prepare session
       URI uri(format("{0}{1}", url, flatten_params(params)));
       HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
@@ -80,7 +80,6 @@ namespace endpoint {
       // get response
       HTTPResponse res;
       std::istream& is = session.receiveResponse(res);
-
       stringstream ss;
       StreamCopier::copyStream(is, ss);
 
@@ -88,10 +87,56 @@ namespace endpoint {
         json j = json::parse(ss.str());
         return j;
       } else {
-        cout << res.getStatus() << endl;
+        cout << res.getStatus() << " " << res.getReason() << endl;
         cout << ss.str() << endl;
         return nullptr;
       }
+    } catch (const Exception &e) {
+      cerr << e.displayText() << endl;
+      return nullptr;
+    }
+  }
+
+  auto post(const string &url, const json &body_json) -> json {
+    pre_check();
+
+    try {
+      // prepare session
+      URI uri(url);
+      HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
+
+      // prepare path
+      string path(uri.getPathAndQuery());
+      if (path.empty()) path = "/";
+
+      // send request
+      HTTPRequest req(HTTPRequest::HTTP_POST, path, HTTPMessage::HTTP_1_1);
+      req.set("Authorization", std::string("Bearer ") + access_token);
+      req.setContentType("application/json");
+
+      auto body = body_json.dump();
+      // Set the request body
+      req.setContentLength(body.length());
+
+      // sends request, returns open stream
+      std::ostream& os = session.sendRequest(req);
+      os << body;  // sends the body
+
+      // get response
+      HTTPResponse res;
+      std::istream &is = session.receiveResponse(res);
+      stringstream ss;
+      StreamCopier::copyStream(is, ss);
+
+      if (res.getStatus() < 400) {
+        json j = json::parse(ss.str());
+        return j;
+      } else {
+        cout << res.getStatus() << " " << res.getReason() << endl;
+        cout << ss.str() << endl;
+        return nullptr;
+      }
+
     } catch (const Exception &e) {
       cerr << e.displayText() << endl;
       return nullptr;

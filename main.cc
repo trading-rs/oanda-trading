@@ -28,4 +28,20 @@ int main(int argc, char** argv) {
 
   if (j != nullptr)
     cout << j.dump(2) << endl;
+
+  json body = {
+    { "order", {
+        { "units", "100" },
+        { "instrument", "EUR_USD" },
+        { "timeInForce", "FOK" },
+        { "type", "MARKET" },
+        { "positionFill", "DEFAULT" }
+      }
+    }
+  };
+
+  auto j2 = post(format("{0}/v3/accounts/{1}/orders", domain, account_id), body);
+
+  if (j2 != nullptr)
+    cout << j.dump(2) << endl;
 }
