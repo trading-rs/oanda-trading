@@ -35,9 +35,10 @@ int main(int argc, char** argv) {
     }
   };
 
-  print_result(order::create(body));
+  auto j = order::create(body);
+  string id = j["lastTransactionID"];
 
   print_result(trade::all("EUR_USD"));
   print_result(trade::one(11));
-  print_result(trade::close(11));
+  print_result(trade::close(std::stoi(id)));
 }
