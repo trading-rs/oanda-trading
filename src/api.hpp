@@ -116,16 +116,18 @@ namespace api {
       // send request
       HTTPRequest req(method, path, HTTPMessage::HTTP_1_1);
       req.set("Authorization", std::string("Bearer ") + access_token);
-      req.setContentType("application/json");
 
       if (body_json != nullptr) {
         auto body = body_json.dump();
         // Set the request body
+        req.setContentType("application/json");
         req.setContentLength(body.length());
 
         // sends request, returns open stream
         std::ostream& os = session.sendRequest(req);
         os << body;  // sends the body
+      } else {
+        session.sendRequest(req);
       }
 
       // get response

@@ -43,6 +43,10 @@ namespace endpoints {
     auto one(int order_id) -> json {
       return get(format("accounts/{0}/trades/{1}", account_id, order_id));
     }
+
+    auto close(int order_id) -> json {
+      return put(format("accounts/{0}/trades/{1}/close", account_id, order_id));
+    }
   }
 
   namespace order {
@@ -58,7 +62,7 @@ namespace endpoints {
       return post(format("accounts/{}/orders", account_id), body);
     }
 
-    auto cancle(int order_id) -> json {
+    auto cancel(int order_id) -> json {
       return put(format("accounts/{0}/orders/{1}/cancel", account_id, order_id));
     }
   }
