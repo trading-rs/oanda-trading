@@ -3,6 +3,11 @@
 ## Prerequisite
 
 ```bash
-brew install openssl
-brew install poco
+./preinstall.sh
+```
+
+## Build, Test and Run
+
+```
+./run.hs && ./main
 ```

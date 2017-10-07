@@ -1,7 +1,7 @@
 CC=c++
 FLAG=-Wall -std=c++14
 INCLUDE=-I./include/range-v3/include -I./include/json/src -I./include/fmt -I/usr/local/opt/openssl/include -I./include/catch/single_include
-LINK=-lssl -lcrypto -lz -lPocoNet -lPocoFoundation -lPocoNetSSL
+LINK=-lssl -lcrypto -lz -lPocoNetSSL -lPocoCrypto -lPocoNet -lPocoZip -lPocoUtil -lPocoXML -lPocoJSON -lPocoFoundation
 MAIN=main
 TEST=test-exec
 OBJS=api.o endpoints.o main.o
