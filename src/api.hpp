@@ -81,6 +81,7 @@ namespace api {
     pre_check();
 
     auto response = Get(Url{format("{0}/v3/{1}", domain, url)},
+                        VerifySsl{false},
                         headers,
                         Parameters(params));
     return response_tweak(response);
@@ -97,6 +98,7 @@ namespace api {
     session.SetUrl(Url{ format("{0}/v3/{1}", domain, url) });
     session.SetHeader(effect_headers);
     session.SetBody(Body(body.dump()));
+    session.SetVerifySsl(VerifySsl{false});
 
     Response response;
     switch (method) {
