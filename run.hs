@@ -37,10 +37,24 @@ getLib :: String -> IO String
 getLib = getPath "lib"
 
 baseIncludes :: [String]
-baseIncludes = ["-I./include/range-v3/include", "-I./include/json/src", "-I./include/fmt", "-I./include/catch/single_include"]
+baseIncludes = [ "-I./include/range-v3/include"
+               , "-I./include/json/src"
+               , "-I./include/fmt"
+               , "-I./include/catch/single_include"
+               ]
 
 links :: [String]
-links = ["-lssl", "-lcrypto", "-lz", "-lPocoNetSSL", "-lPocoCrypto", "-lPocoNet", "-lPocoZip", "-lPocoUtil", "-lPocoXML", "-lPocoJSON", "-lPocoFoundation"]
+links = [ "-lssl"
+        , "-lcrypto"
+        , "-lz"
+        , "-lPocoFoundation"
+        , "-lPocoXML"
+        , "-lPocoJSON"
+        , "-lPocoUtil"
+        , "-lPocoNet"
+        , "-lPocoCrypto"
+        , "-lPocoNetSSL"
+        , "-lPocoZip"]
 
 dependencies :: [String]
 dependencies = [pocoPath, opensslPath, zlibPath]

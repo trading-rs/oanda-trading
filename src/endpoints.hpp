@@ -22,22 +22,22 @@ using namespace api;
 
 namespace endpoints {
   namespace instrument {
-    auto candles(string instrument, const Map &params) -> json {
+    auto candles(string instrument, const Params &params) -> json {
       return get(format("instruments/{}/candles", instrument), params);
     }
 
-    auto order_book(string instrument, const Map &params) -> json {
+    auto order_book(string instrument, const Params &params) -> json {
       return get(format("instruments/{}/orderBook", instrument), params);
     }
 
-    auto position_book(string instrument, const Map &params) -> json {
+    auto position_book(string instrument, const Params &params) -> json {
       return get(format("instruments/{}/positionBook", instrument), params);
     }
   }
 
   namespace trade {
     auto all(const string &instrument) -> json {
-      return get(format("accounts/{}/trades", account_id), Map({{ "instrument", instrument }}));
+      return get(format("accounts/{}/trades", account_id), Params({{ "instrument", instrument }}));
     }
 
     auto one(int order_id) -> json {
@@ -51,7 +51,7 @@ namespace endpoints {
 
   namespace order {
     auto all(const string &instrument) -> json {
-      return get(format("accounts/{}/orders", account_id), Map({{ "instrument", instrument }}));
+      return get(format("accounts/{}/orders", account_id), Params({{ "instrument", instrument }}));
     }
 
     auto one(int order_id) -> json {
@@ -72,7 +72,7 @@ namespace endpoints {
     // multiple instruments { "EUR_USD", "USD_CAD" }
     auto pricing(vector<string> instruments) -> json {
       string instruments_str = instruments | view::join(',');
-      const Map &params = {
+      const Params &params = {
         { "instruments", instruments_str }
       };
       return get(format("accounts/{}/pricing", domain, account_id), params);

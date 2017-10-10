@@ -1,7 +1,7 @@
 #pragma once
 
 #include <json.hpp>
-using nlohmann::json;
+using json = nlohmann::json;
 
 #include <string>
 #include <utility>
@@ -9,7 +9,11 @@ using nlohmann::json;
 #include <memory>
 #include <vector>
 #include <map>
+#include <initializer_list>
 using namespace std;
+
+#include <cpr/cpr.h>
+using namespace cpr;
 
 #ifndef FORMAT_HEADER
 #define FORMAT_HEADER
@@ -21,25 +25,30 @@ using namespace fmt;
 #include <range/v3/all.hpp>
 using namespace ranges;
 
-#include <Poco/Net/HTTPSClientSession.h>
-#include <Poco/Net/HTTPRequest.h>
-#include <Poco/Net/HTTPResponse.h>
-#include <Poco/Net/SSLManager.h>
-#include <Poco/StreamCopier.h>
-#include <Poco/Path.h>
-#include <Poco/URI.h>
-#include <Poco/Exception.h>
-using namespace Poco;
-using namespace Poco::Net;
-
 namespace api {
   typedef map<string, string> Map;
-
-  const Context::Ptr context = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_NONE, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+  typedef initializer_list<Parameter> Params;
 
   const char* domain = getenv("FOREX_DOMAIN");
   const char* access_token = getenv("FOREX_ACCESS_TOKEN");
   const char* account_id = getenv("FOREX_ACCOUNT_ID");
+
+  const Header &headers = {
+    { "accept", "application/json" },
+    { "Authorization", format("Bearer {}", access_token) }
+  };
+
+  const Header &effect_headers = {
+    { "accept", "application/json" },
+    { "Content-Type", "application/json" },
+    { "Authorization", "Bearer bae2d781dd63e0043d67890dad056e53-3de2bb579fd9c6f70c5dd90e1a2ddb3a" }
+  };
+
+  enum class EFFECT_TYPE : size_t {
+    POST,
+    PUT,
+    PATCH
+  };
 
   auto pre_check() {
     if (!(domain && access_token && account_id))
@@ -59,100 +68,59 @@ namespace api {
     }
   }
 
-  auto get(const string &url, const Map &params) -> json {
-    pre_check();
-
-    try {
-      // prepare session
-      URI uri(format("{0}/v3/{1}{2}", domain, url, flatten_params(params)));
-      HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
-      session.setKeepAlive(true);
-
-      // prepare path
-      string path(uri.getPathAndQuery());
-      if (path.empty()) path = "/";
-
-      // send request
-      HTTPRequest req(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
-      req.set("Authorization", std::string("Bearer ") + access_token);
-      session.sendRequest(req);
-
-      // get response
-      HTTPResponse res;
-      std::istream& is = session.receiveResponse(res);
-      stringstream ss;
-      StreamCopier::copyStream(is, ss);
-
-      if (res.getStatus() < 400) {
-        json j = json::parse(ss.str());
-        return j;
-      } else {
-        cout << res.getStatus() << " " << res.getReason() << endl;
-        cout << ss.str() << endl;
-        return nullptr;
-      }
-    } catch (const Exception &e) {
-      cerr << e.displayText() << endl;
+  auto response_tweak(Response response) -> json {
+    if (response.status_code < 400) {
+      return nlohmann::json::parse(response.text);
+    } else {
+      cout << response.status_code << " " << response.text << endl;
       return nullptr;
     }
+  }
+
+  auto get(const string &url, const Params &params) -> json {
+    pre_check();
+
+    auto response = Get(Url{format("{0}/v3/{1}", domain, url)},
+                        headers,
+                        Parameters(params));
+    return response_tweak(response);
   }
 
   auto get(const string &url) -> json {
-    return get(url, Map({}));
+    return get(url, Params({}));
   }
 
-  auto effect_request(const string &method, const string &url, const json &body_json) -> json {
+  auto effect_request(EFFECT_TYPE method, const string &url, const json &body) -> json {
     pre_check();
 
-    try {
-      // prepare session
-      URI uri(format("{0}/v3/{1}", domain, url));
-      HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
+    Session session;
+    session.SetUrl(Url{ format("{0}/v3/{1}", domain, url) });
+    session.SetHeader(effect_headers);
+    session.SetBody(Body(body.dump()));
 
-      // prepare path
-      string path(uri.getPathAndQuery());
-      if (path.empty()) path = "/";
-
-      // send request
-      HTTPRequest req(method, path, HTTPMessage::HTTP_1_1);
-      req.set("Authorization", std::string("Bearer ") + access_token);
-
-      if (body_json != nullptr) {
-        auto body = body_json.dump();
-        // Set the request body
-        req.setContentType("application/json");
-        req.setContentLength(body.length());
-
-        // sends request, returns open stream
-        std::ostream& os = session.sendRequest(req);
-        os << body;  // sends the body
-      } else {
-        session.sendRequest(req);
-      }
-
-      // get response
-      HTTPResponse res;
-      std::istream &is = session.receiveResponse(res);
-      stringstream ss;
-      StreamCopier::copyStream(is, ss);
-
-      if (res.getStatus() < 400) {
-        json j = json::parse(ss.str());
-        return j;
-      } else {
-        cout << res.getStatus() << " " << res.getReason() << endl;
-        cout << ss.str() << endl;
-        return nullptr;
-      }
-
-    } catch (const Exception &e) {
-      cerr << e.displayText() << endl;
-      return nullptr;
+    Response response;
+    switch (method) {
+    case EFFECT_TYPE::POST: {
+      response = session.Post();
+      break;
     }
+    case EFFECT_TYPE::PUT: {
+      response = session.Put();
+      break;
+    }
+    case EFFECT_TYPE::PATCH: {
+      response = session.Patch();
+      break;
+    }
+    default:
+      break;
+    }
+
+    return response_tweak(response);
   }
 
   auto post(const string &url, const json &body_json) -> json {
-    return effect_request(HTTPRequest::HTTP_POST, url, body_json);
+    return effect_request(EFFECT_TYPE::POST, url, body_json);
   }
 
   auto post(const string &url) -> json {
@@ -160,10 +128,18 @@ namespace api {
   }
 
   auto put(const string &url, const json &body_json) -> json {
-    return effect_request(HTTPRequest::HTTP_PUT , url, body_json);
+    return effect_request(EFFECT_TYPE::PUT, url, body_json);
   }
 
   auto put(const string &url) -> json {
     return put(url, nullptr);
+  }
+
+  auto patch(const string &url, const json &body_json) -> json {
+    return effect_request(EFFECT_TYPE::PATCH, url, body_json);
+  }
+
+  auto patch(const string &url) -> json {
+    return patch(url, nullptr);
   }
 }

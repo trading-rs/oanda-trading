@@ -8,7 +8,7 @@ using namespace endpoints;
 using nlohmann::json;
 
 TEST_CASE("make sure endpoints work as expected") {
-  const Map& params = {
+  const Params& params = {
     { "price", "BA" },
     { "from", "2017-10-01T15:17:00Z" },
     { "granularity", "D" }

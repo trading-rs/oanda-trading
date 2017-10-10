@@ -14,7 +14,7 @@ auto print_result(const json &result) -> void {
 }
 
 int main(int argc, char** argv) {
-  const Map& params = {
+  const Params& params = {
     //B bid A ask
     { "price", "BA" },
     { "from", "2017-10-01T15:17:00Z" },
