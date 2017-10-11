@@ -23,7 +23,6 @@ using namespace cpr;
 using namespace fmt;
 
 #include <range/v3/all.hpp>
-using namespace ranges;
 
 namespace api {
   typedef map<string, string> Map;
@@ -57,10 +56,10 @@ namespace api {
 
   auto flatten_params(const Map &params) -> string {
     vector<string> params_vec = params
-      | view::transform([](const auto &pair) {
+      | ranges::view::transform([](const auto &pair) {
           return format("{0}={1}", pair.first, pair.second);
         });
-    string params_str = params_vec | view::join('&');
+    string params_str = params_vec | ranges::view::join('&');
     if (!params_str.empty()) {
       return format("?{}", params_str);
     } else {

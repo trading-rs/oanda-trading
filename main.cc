@@ -8,6 +8,8 @@ using namespace std;
 #include "src/endpoints.hpp"
 using namespace endpoints;
 
+#include <qtl_mysql.hpp>
+
 auto print_result(const json &result) -> void {
   if (result != nullptr)
     cout << result.dump() << endl;
@@ -41,4 +43,8 @@ int main(int argc, char** argv) {
   print_result(trade::all("EUR_USD"));
   print_result(trade::one(11));
   print_result(trade::close(std::stoi(id)));
+
+  qtl::mysql::database db;
+  auto conn_result = db.open("localhost", "root", "cleantha", "stock");
+  cout << conn_result << endl;
 }

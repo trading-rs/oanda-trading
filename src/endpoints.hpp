@@ -8,7 +8,6 @@ using nlohmann::json;
 using namespace std;
 
 #include <range/v3/all.hpp>
-using namespace ranges;
 
 #ifndef FORMAT_HEADER
 #define FORMAT_HEADER
@@ -71,7 +70,7 @@ namespace endpoints {
     // single instrument { "EUR_USD" }
     // multiple instruments { "EUR_USD", "USD_CAD" }
     auto pricing(vector<string> instruments) -> json {
-      string instruments_str = instruments | view::join(',');
+      string instruments_str = instruments | ranges::view::join(',');
       const Params &params = {
         { "instruments", instruments_str }
       };

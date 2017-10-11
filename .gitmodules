@@ -13,3 +13,6 @@
 [submodule "include/json"]
 	path = include/json
 	url = https://github.com/nlohmann/json.git
+[submodule "include/qtl"]
+	path = include/qtl
+	url = https://github.com/znone/qtl.git
