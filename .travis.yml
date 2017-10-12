@@ -12,6 +12,8 @@ script:
 - c++ --version
 - git submodule update --init --recursive
 - "./build.sh"
+services:
+- mysql
 env:
   global:
   - secure: bbWe7xRDdcgxhrIDjsogWTZxw2xbSb1e7po5w1S5em3YXFO9N+nytlorLsdXlY1uXX7xZ7NK8F11lfyyjIZmbe2So4ievnYHfh40Qm13OLI9+dO0q5lSakHnO+70DUq+inT2DOFhRNkXXvjOBZ6F+rBVvX1ueDgBqqjX7xSqEeHIzcMyXYAVjSegVv8HsrfMpnsiQBPH8f2fj2ZcGU+GIqx0FvGg8CUi4FNeI7ry5Z4n6xfZZ1Gd0V5kJYcFEQmrLvvcSjlVtUBe/sIXUta7lnXM1rMKe+ATPtU6siFN/Z9PtrAXBA4dTkkriw2zsrwt5IvrbGppTOVqd9V0E31QtQiaIcT+UT4oNzOD8Gm5mR9HZBLXwdiJGpMP5sNZqnGxfgWHi7bEov3wiRGh2A9mSnuFtaSFRbS+oAClPzAZq6slSfDrlQUnGYrOuzDAfM6Xm2RHHOMalfzqPnmxXDEDpj6W7oIfLSYNr0t9HaPbgPNHvvi3ayzQ4W7KW4W1ase90C2c0itaVBrTB+8g6XgzQl2UmkM/KGMEpJjQKVMqW/V9g6KHhxrhfPhMXE50IHAYJW+SADdWm25bURygkFhyEbAj6geogZeFA0MrjfK5uT2dwK3dCK0KpC5dcrcJqSv87Hk7qkPMwwCd/+o4yI65gXFY2nYCl8L/ujvmI/7damw=
