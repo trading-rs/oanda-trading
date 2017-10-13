@@ -44,7 +44,12 @@ int main(int argc, char** argv) {
   print_result(trade::one(11));
   print_result(trade::close(std::stoi(id)));
 
+  const char* host = getenv("FOREX_DB_HOST");
+  const char* account = getenv("FOREX_DB_ACCOUNT");
+  const char* password = getenv("FOREX_DB_PASSWORD");
+  const char* dbname = getenv("FOREX_DB_NAME");
+
   qtl::mysql::database db;
-  auto conn_result = db.open("localhost", "root", "cleantha", "stock");
+  auto conn_result = db.open(host, account, password, dbname);
   cout << conn_result << endl;
 }

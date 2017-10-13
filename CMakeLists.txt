@@ -51,6 +51,7 @@ target_link_libraries(main ${MYSQL_LIBS})
 
 add_executable(tests test/tests.cc)
 target_link_libraries(tests ${CPR_LIBRARIES})
+target_link_libraries(tests ${MYSQL_LIBS})
 add_dependencies(main tests)
 
 enable_testing()
