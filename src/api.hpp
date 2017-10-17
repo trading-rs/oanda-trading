@@ -40,7 +40,7 @@ namespace api {
   const Header &effect_headers = {
     { "accept", "application/json" },
     { "Content-Type", "application/json" },
-    { "Authorization", "Bearer bae2d781dd63e0043d67890dad056e53-3de2bb579fd9c6f70c5dd90e1a2ddb3a" }
+    { "Authorization", format("Bearer {}", access_token) }
   };
 
   enum class EFFECT_TYPE : size_t {
